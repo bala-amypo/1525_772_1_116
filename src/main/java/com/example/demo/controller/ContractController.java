@@ -18,45 +18,30 @@ public class ContractController {
         this.contractService = contractService;
     }
 
-    // Create Contract
     @PostMapping
     public ResponseEntity<Contract> createContract(@RequestBody Contract contract) {
-        return new ResponseEntity<>(
-                contractService.createContract(contract),
-                HttpStatus.CREATED
-        );
+        return new ResponseEntity<>(contractService.createContract(contract), HttpStatus.CREATED);
     }
 
-    // Update Contract
     @PutMapping("/{id}")
     public ResponseEntity<Contract> updateContract(
             @PathVariable Long id,
             @RequestBody Contract contract) {
-
-        return ResponseEntity.ok(
-                contractService.updateContract(id, contract)
-        );
+        return ResponseEntity.ok(contractService.updateContract(id, contract));
     }
 
-    // Get Contract by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Contract> getContractById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                contractService.getContractById(id)
-        );
+    public ResponseEntity<Contract> getContract(@PathVariable Long id) {
+        return ResponseEntity.ok(contractService.getContractById(id));
     }
 
-    // Get All Contracts
     @GetMapping
     public ResponseEntity<List<Contract>> getAllContracts() {
-        return ResponseEntity.ok(
-                contractService.getAllContracts()
-        );
+        return ResponseEntity.ok(contractService.getAllContracts());
     }
 
-    // Update Contract Status
     @PutMapping("/{id}/status")
-    public ResponseEntity<Void> updateContractStatus(@PathVariable Long id) {
+    public ResponseEntity<Void> updateStatus(@PathVariable Long id) {
         contractService.updateContractStatus(id);
         return ResponseEntity.ok().build();
     }

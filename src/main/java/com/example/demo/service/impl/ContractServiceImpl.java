@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class ContractServiceImpl implements ContractService {
@@ -26,27 +25,41 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Contract createContract(Contract contract) {
+
         if (contract.getBaseContractValue() == null ||
                 contract.getBaseContractValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Base contract value invalid");
+            throw new BadRequestException("Base contract value must be greater than zero");
         }
-        if (contract.getAgreedDeliveryDate().isBefore(LocalDate.now())) {
-            throw new BadRequestException("future date required");
+
+        if (contract.getAgreedDeliveryDate() == null ||
+                contract.getAgreedDeliveryDate().isBefore(LocalDate.now())) {
+            throw new BadRequestException("Agreed delivery date must be in the future");
         }
-        if (contractRepository.findByContractNumber(contract.getContractNumber()).isPresent()) {
-            throw new BadRequestException("Contract already exists");
-        }
+
+        contractRepository.findByContractNumber(contract.getContractNumber())
+                .ifPresent(c -> {
+                    throw new BadRequestException("Contract number already exists");
+                });
+
         return contractRepository.save(contract);
     }
 
     @Override
-    public Contract updateContract(Long id, Contract updated) {
-        Contract existing = getContractById(id);
-        existing.setTitle(updated.getTitle());
-        existing.setCounterpartyName(updated.getCounterpartyName());
-        existing.setAgreedDeliveryDate(updated.getAgreedDeliveryDate());
-        existing.setBaseContractValue(updated.getBaseContractValue());
-        existing.setStatus(updated.getStatus());
+    public Contract updateContract(Long id, Contract updatedContract) {
+
+        Contract existing = contractRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
+
+        if (updatedContract.getBaseContractValue() != null &&
+                updatedContract.getBaseContractValue().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Base contract value must be greater than zero");
+        }
+
+        existing.setTitle(updatedContract.getTitle());
+        existing.setCounterpartyName(updatedContract.getCounterpartyName());
+        existing.setAgreedDeliveryDate(updatedContract.getAgreedDeliveryDate());
+        existing.setBaseContractValue(updatedContract.getBaseContractValue());
+
         return contractRepository.save(existing);
     }
 
@@ -57,17 +70,25 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public List<Contract> getAllContracts() {
+    public java.util.List<Contract> getAllContracts() {
         return contractRepository.findAll();
     }
 
     @Override
     public void updateContractStatus(Long id) {
+
         Contract contract = getContractById(id);
-        boolean late = deliveryRecordRepository.findByContractId(id)
-                .stream()
-                .anyMatch(d -> d.getDeliveryDate().isAfter(contract.getAgreedDeliveryDate()));
-        contract.setStatus(late ? "BREACHED" : "COMPLETED");
+
+        deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(id)
+                .ifPresentOrElse(record -> {
+                    if (record.getDeliveryDate()
+                            .isAfter(contract.getAgreedDeliveryDate())) {
+                        contract.setStatus("BREACHED");
+                    } else {
+                        contract.setStatus("COMPLETED");
+                    }
+                }, () -> contract.setStatus("ACTIVE"));
+
         contractRepository.save(contract);
     }
 }

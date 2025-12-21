@@ -6,14 +6,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "contracts", uniqueConstraints = @UniqueConstraint(columnNames = "contract_number"))
+@Table(name = "contracts", uniqueConstraints = @UniqueConstraint(columnNames = "contractNumber"))
 public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "contract_number", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String contractNumber;
 
     @Column(nullable = false)
@@ -25,39 +25,97 @@ public class Contract {
     @Column(nullable = false)
     private LocalDate agreedDeliveryDate;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false)
     private BigDecimal baseContractValue;
 
     @Column(nullable = false)
     private String status = "ACTIVE";
 
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 
     public Contract() {}
 
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    public Contract(String contractNumber, String title, String counterpartyName, LocalDate agreedDeliveryDate, BigDecimal baseContractValue) {
+        this.contractNumber = contractNumber;
+        this.title = title;
+        this.counterpartyName = counterpartyName;
+        this.agreedDeliveryDate = agreedDeliveryDate;
+        this.baseContractValue = baseContractValue;
     }
 
-    @PreUpdate
-    public void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public Long getId() {
+        return id;
     }
 
-    public Long getId() { return id; }
-    public String getContractNumber() { return contractNumber; }
-    public void setContractNumber(String contractNumber) { this.contractNumber = contractNumber; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getCounterpartyName() { return counterpartyName; }
-    public void setCounterpartyName(String counterpartyName) { this.counterpartyName = counterpartyName; }
-    public LocalDate getAgreedDeliveryDate() { return agreedDeliveryDate; }
-    public void setAgreedDeliveryDate(LocalDate agreedDeliveryDate) { this.agreedDeliveryDate = agreedDeliveryDate; }
-    public BigDecimal getBaseContractValue() { return baseContractValue; }
-    public void setBaseContractValue(BigDecimal baseContractValue) { this.baseContractValue = baseContractValue; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getContractNumber() {
+        return contractNumber;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getCounterpartyName() {
+        return counterpartyName;
+    }
+
+    public LocalDate getAgreedDeliveryDate() {
+        return agreedDeliveryDate;
+    }
+
+    public BigDecimal getBaseContractValue() {
+        return baseContractValue;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setContractNumber(String contractNumber) {
+        this.contractNumber = contractNumber;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setCounterpartyName(String counterpartyName) {
+        this.counterpartyName = counterpartyName;
+    }
+
+    public void setAgreedDeliveryDate(LocalDate agreedDeliveryDate) {
+        this.agreedDeliveryDate = agreedDeliveryDate;
+    }
+
+    public void setBaseContractValue(BigDecimal baseContractValue) {
+        this.baseContractValue = baseContractValue;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+    
 }
