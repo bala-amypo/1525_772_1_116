@@ -1,15 +1,48 @@
-package com.example.demo.repository;
+package com.example.demo.entity;
 
-import com.example.demo.entity.BreachRule;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.List;
 
-@Repository
-public interface BreachRuleRepository extends JpaRepository<BreachRule, Long> {
+@Entity
+@Table(name = "breach_rules")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BreachRule {
 
-    Optional<BreachRule> findByRuleName(String ruleName);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    Optional<BreachRule> findFirstByActiveTrueOrderByIsDefaultRuleDesc();
+    @Column(unique = true, nullable = false)
+    private String ruleName;
+
+    @Column(nullable = false)
+    private BigDecimal penaltyPerDay;
+
+    @Column(nullable = false)
+    private Double maxPenaltyPercentage;
+
+    private Boolean active;
+
+    private Boolean isDefaultRule;
+
+    /* ---------------- Relationships ---------------- */
+
+    @OneToMany(mappedBy = "breachRule", fetch = FetchType.LAZY)
+    private List<PenaltyCalculation> penaltyCalculations;
+
+    @PrePersist
+    public void onCreate() {
+        if (active == null) {
+            active = true;
+        }
+        if (isDefaultRule == null) {
+            isDefaultRule = false;
+        }
+    }
 }
