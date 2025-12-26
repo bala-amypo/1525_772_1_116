@@ -10,16 +10,21 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ContractServiceImpl implements ContractService {
 
-    private final ContractRepository contractRepository;
-    private final DeliveryRecordRepository deliveryRecordRepository;
+    private ContractRepository contractRepository;
+    private DeliveryRecordRepository deliveryRecordRepository;
 
-    public ContractServiceImpl(
-            ContractRepository contractRepository,
-            DeliveryRecordRepository deliveryRecordRepository) {
+    // REQUIRED for TestNG
+    public ContractServiceImpl() {
+    }
+
+    // Used by Spring
+    public ContractServiceImpl(ContractRepository contractRepository,
+                               DeliveryRecordRepository deliveryRecordRepository) {
         this.contractRepository = contractRepository;
         this.deliveryRecordRepository = deliveryRecordRepository;
     }
@@ -60,19 +65,19 @@ public class ContractServiceImpl implements ContractService {
     public Contract updateContractStatus(Long id) {
         Contract contract = getContractById(id);
 
-        deliveryRecordRepository
-                .findFirstByContractIdOrderByDeliveryDateDesc(id)
-                .ifPresentOrElse(
-                        record -> {
-                            if (record.getDeliveryDate()
-                                    .isAfter(contract.getAgreedDeliveryDate())) {
-                                contract.setStatus("BREACHED");
-                            } else {
-                                contract.setStatus("ACTIVE");
-                            }
-                        },
-                        () -> contract.setStatus("ACTIVE")
-                );
+        Optional<DeliveryRecord> latest =
+                deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(id);
+
+        if (latest.isPresent()) {
+            if (latest.get().getDeliveryDate()
+                    .isAfter(contract.getAgreedDeliveryDate())) {
+                contract.setStatus("BREACHED");
+            } else {
+                contract.setStatus("ACTIVE");
+            }
+        } else {
+            contract.setStatus("ACTIVE");
+        }
 
         return contractRepository.save(contract);
     }

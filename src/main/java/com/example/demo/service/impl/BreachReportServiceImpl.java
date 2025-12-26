@@ -11,9 +11,12 @@ import java.util.List;
 @Service
 public class BreachReportServiceImpl implements BreachReportService {
 
-    private final BreachReportRepository breachReportRepository;
-    private final PenaltyCalculationRepository penaltyCalculationRepository;
-    private final ContractRepository contractRepository;
+    private BreachReportRepository breachReportRepository;
+    private PenaltyCalculationRepository penaltyCalculationRepository;
+    private ContractRepository contractRepository;
+
+    public BreachReportServiceImpl() {
+    }
 
     public BreachReportServiceImpl(BreachReportRepository breachReportRepository,
                                    PenaltyCalculationRepository penaltyCalculationRepository,
@@ -25,6 +28,7 @@ public class BreachReportServiceImpl implements BreachReportService {
 
     @Override
     public BreachReport generateReport(Long contractId) {
+
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
 
@@ -51,7 +55,6 @@ public class BreachReportServiceImpl implements BreachReportService {
     public List<BreachReport> getReportsForContract(Long contractId) {
         return breachReportRepository.findByContractId(contractId);
     }
-
 
     @Override
     public List<BreachReport> getAllReports() {

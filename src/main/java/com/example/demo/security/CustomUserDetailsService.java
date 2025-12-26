@@ -11,16 +11,23 @@ import java.util.stream.Collectors;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
+
+    // REQUIRED for TestNG
+    public CustomUserDetailsService() {
+    }
 
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
+    public UserDetails loadUserByUsername(String email)
+            throws UsernameNotFoundException {
+
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

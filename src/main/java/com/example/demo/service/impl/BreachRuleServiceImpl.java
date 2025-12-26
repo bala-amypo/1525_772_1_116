@@ -12,7 +12,10 @@ import java.util.List;
 @Service
 public class BreachRuleServiceImpl implements BreachRuleService {
 
-    private final BreachRuleRepository breachRuleRepository;
+    private BreachRuleRepository breachRuleRepository;
+
+    public BreachRuleServiceImpl() {
+    }
 
     public BreachRuleServiceImpl(BreachRuleRepository breachRuleRepository) {
         this.breachRuleRepository = breachRuleRepository;
@@ -64,7 +67,6 @@ public class BreachRuleServiceImpl implements BreachRuleService {
 
     @Override
     public void deactivateRule(Long id) {
-
         BreachRule rule = breachRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 

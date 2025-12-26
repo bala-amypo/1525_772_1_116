@@ -13,10 +13,13 @@ import java.util.List;
 @Service
 public class PenaltyCalculationServiceImpl implements PenaltyCalculationService {
 
-    private final PenaltyCalculationRepository penaltyCalculationRepository;
-    private final ContractRepository contractRepository;
-    private final DeliveryRecordRepository deliveryRecordRepository;
-    private final BreachRuleRepository breachRuleRepository;
+    private PenaltyCalculationRepository penaltyCalculationRepository;
+    private ContractRepository contractRepository;
+    private DeliveryRecordRepository deliveryRecordRepository;
+    private BreachRuleRepository breachRuleRepository;
+
+    public PenaltyCalculationServiceImpl() {
+    }
 
     public PenaltyCalculationServiceImpl(
             PenaltyCalculationRepository penaltyCalculationRepository,
@@ -36,7 +39,7 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
 
-        DeliveryRecord deliveryRecord = deliveryRecordRepository
+        DeliveryRecord record = deliveryRecordRepository
                 .findFirstByContractIdOrderByDeliveryDateDesc(contractId)
                 .orElseThrow(() -> new ResourceNotFoundException("No delivery record"));
 
@@ -44,32 +47,32 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
                 .findFirstByActiveTrueOrderByIsDefaultRuleDesc()
                 .orElseThrow(() -> new ResourceNotFoundException("No active breach rule"));
 
-        long diffDays = ChronoUnit.DAYS.between(
+        long diff = ChronoUnit.DAYS.between(
                 contract.getAgreedDeliveryDate(),
-                deliveryRecord.getDeliveryDate()
+                record.getDeliveryDate()
         );
 
-        int daysDelayed = (int) Math.max(0, diffDays);
+        int daysDelayed = (int) Math.max(0, diff);
 
-        BigDecimal calculatedPenalty = rule.getPenaltyPerDay()
+        BigDecimal penalty = rule.getPenaltyPerDay()
                 .multiply(BigDecimal.valueOf(daysDelayed));
 
-        BigDecimal maxAllowedPenalty = contract.getBaseContractValue()
+        BigDecimal maxAllowed = contract.getBaseContractValue()
                 .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage() / 100));
 
-        if (calculatedPenalty.compareTo(maxAllowedPenalty) > 0) {
-            calculatedPenalty = maxAllowedPenalty;
+        if (penalty.compareTo(maxAllowed) > 0) {
+            penalty = maxAllowed;
         }
 
-        PenaltyCalculation calculation = PenaltyCalculation.builder()
+        PenaltyCalculation calc = PenaltyCalculation.builder()
                 .contract(contract)
-                .deliveryRecord(deliveryRecord)
+                .deliveryRecord(record)
                 .breachRule(rule)
                 .daysDelayed(daysDelayed)
-                .calculatedPenalty(calculatedPenalty)
+                .calculatedPenalty(penalty)
                 .build();
 
-        return penaltyCalculationRepository.save(calculation);
+        return penaltyCalculationRepository.save(calc);
     }
 
     @Override
