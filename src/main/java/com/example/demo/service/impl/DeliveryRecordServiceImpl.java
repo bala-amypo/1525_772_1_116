@@ -24,19 +24,13 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
         this.contractRepository = contractRepository;
     }
 
-    public DeliveryRecordServiceImpl() {
-        this.deliveryRecordRepository = null;
-        this.contractRepository = null;
-    }
-
     @Override
     public DeliveryRecord createDeliveryRecord(DeliveryRecord record) {
         if (record.getDeliveryDate().isAfter(LocalDate.now())) {
-            return null;
+            throw new BadRequestException("Delivery date cannot be in the future");
         }
 
-        Long contractId = record.getContract().getId();
-        Contract contract = contractRepository.findById(contractId)
+        Contract contract = contractRepository.findById(record.getContract().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
 
         record.setContract(contract);

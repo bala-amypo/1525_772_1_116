@@ -23,12 +23,6 @@ public class BreachReportServiceImpl implements BreachReportService {
         this.contractRepository = contractRepository;
     }
 
-    public BreachReportServiceImpl() {
-        this.breachReportRepository = null;
-        this.penaltyCalculationRepository = null;
-        this.contractRepository = null;
-    }
-
     @Override
     public BreachReport generateReport(Long contractId) {
         Contract contract = contractRepository.findById(contractId)
@@ -42,6 +36,7 @@ public class BreachReportServiceImpl implements BreachReportService {
                 .contract(contract)
                 .daysDelayed(calc.getDaysDelayed())
                 .penaltyAmount(calc.getCalculatedPenalty())
+                .reportStatus("GENERATED")
                 .build();
 
         return breachReportRepository.save(report);

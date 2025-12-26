@@ -28,13 +28,6 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
         this.breachRuleRepository = breachRuleRepository;
     }
 
-    public PenaltyCalculationServiceImpl() {
-        this.penaltyCalculationRepository = null;
-        this.contractRepository = null;
-        this.deliveryRecordRepository = null;
-        this.breachRuleRepository = null;
-    }
-
     @Override
     public PenaltyCalculation calculatePenalty(Long contractId) {
         Contract contract = contractRepository.findById(contractId)
@@ -48,24 +41,27 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
                 .findFirstByActiveTrueOrderByIsDefaultRuleDesc()
                 .orElseThrow(() -> new ResourceNotFoundException("No active breach rule"));
 
-        long daysDelayed = Math.max(0,
-                ChronoUnit.DAYS.between(contract.getAgreedDeliveryDate(), record.getDeliveryDate()));
+        long days = ChronoUnit.DAYS.between(
+                contract.getAgreedDeliveryDate(),
+                record.getDeliveryDate()
+        );
+
+        int daysDelayed = (int) Math.max(0, days);
 
         BigDecimal rawPenalty =
                 rule.getPenaltyPerDay().multiply(BigDecimal.valueOf(daysDelayed));
 
-        BigDecimal maxPenalty =
+        BigDecimal maxAllowed =
                 contract.getBaseContractValue()
-                        .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage()))
-                        .divide(BigDecimal.valueOf(100));
+                        .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage() / 100));
 
-        BigDecimal finalPenalty = rawPenalty.min(maxPenalty);
+        BigDecimal finalPenalty = rawPenalty.min(maxAllowed);
 
         PenaltyCalculation calc = PenaltyCalculation.builder()
                 .contract(contract)
                 .deliveryRecord(record)
                 .breachRule(rule)
-                .daysDelayed((int) daysDelayed)
+                .daysDelayed(daysDelayed)
                 .calculatedPenalty(finalPenalty)
                 .build();
 

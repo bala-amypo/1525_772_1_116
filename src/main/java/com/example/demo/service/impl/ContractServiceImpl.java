@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ContractServiceImpl implements ContractService {
@@ -26,48 +25,29 @@ public class ContractServiceImpl implements ContractService {
         this.deliveryRecordRepository = deliveryRecordRepository;
     }
 
-    public ContractServiceImpl() {
-        this.contractRepository = null;
-        this.deliveryRecordRepository = null;
-    }
-
     @Override
     public Contract createContract(Contract contract) {
-        if (contract.getBaseContractValue() == null ||
-            contract.getBaseContractValue().compareTo(BigDecimal.ZERO) <= 0) {
-            return null;
+        if (contract.getBaseContractValue().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Base contract value must be greater than zero");
         }
 
-        if (contractRepository != null &&
-            contractRepository.findByContractNumber(contract.getContractNumber()).isPresent()) {
-            throw new BadRequestException("Contract already exists");
-        }
+        contractRepository.findByContractNumber(contract.getContractNumber())
+                .ifPresent(c -> {
+                    throw new BadRequestException("Contract already exists");
+                });
 
-        if (contract.getAgreedDeliveryDate().isBefore(LocalDate.now())) {
-            throw new BadRequestException("Delivery date must be future");
-        }
-
-        if (contract.getStatus() == null) {
-            contract.setStatus("ACTIVE");
-        }
-
+        contract.setStatus("ACTIVE");
         return contractRepository.save(contract);
     }
 
     @Override
-    public Contract updateContract(Long id, Contract updated) {
-        Contract existing = contractRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
+    public Contract updateContract(Long id, Contract contract) {
+        Contract existing = getContractById(id);
 
-        if (updated.getBaseContractValue() != null &&
-            updated.getBaseContractValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Base contract value");
-        }
-
-        existing.setTitle(updated.getTitle());
-        existing.setCounterpartyName(updated.getCounterpartyName());
-        existing.setAgreedDeliveryDate(updated.getAgreedDeliveryDate());
-        existing.setBaseContractValue(updated.getBaseContractValue());
+        existing.setTitle(contract.getTitle());
+        existing.setCounterpartyName(contract.getCounterpartyName());
+        existing.setAgreedDeliveryDate(contract.getAgreedDeliveryDate());
+        existing.setBaseContractValue(contract.getBaseContractValue());
 
         return contractRepository.save(existing);
     }
@@ -87,19 +67,21 @@ public class ContractServiceImpl implements ContractService {
     public void updateContractStatus(Long id) {
         Contract contract = getContractById(id);
 
-        Optional<DeliveryRecord> latest =
-                deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(id);
+        deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(id)
+                .ifPresentOrElse(record -> {
+                    if (record.getDeliveryDate().isAfter(contract.getAgreedDeliveryDate())) {
+                        contract.setStatus("BREACHED");
+                    } else {
+                        contract.setStatus("COMPLETED");
+                    }
+                }, () -> {
+                    if (contract.getAgreedDeliveryDate().isBefore(LocalDate.now())) {
+                        contract.setStatus("BREACHED");
+                    } else {
+                        contract.setStatus("ACTIVE");
+                    }
+                });
 
-        if (latest.isEmpty()) {
-            contract.setStatus("ACTIVE");
-        } else {
-            DeliveryRecord record = latest.get();
-            if (record.getDeliveryDate().isAfter(contract.getAgreedDeliveryDate())) {
-                contract.setStatus("BREACHED");
-            } else {
-                contract.setStatus("COMPLETED");
-            }
-        }
         contractRepository.save(contract);
     }
 }
