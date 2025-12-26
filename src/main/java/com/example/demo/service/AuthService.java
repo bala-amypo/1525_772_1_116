@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.JwtResponse;
 import com.example.demo.entity.User;
 
 public interface AuthService {
 
-    String login(String email, String password);
+    JwtResponse register(User user);
 
-    String register(User user);
+    JwtResponse login(AuthRequest request);
 }

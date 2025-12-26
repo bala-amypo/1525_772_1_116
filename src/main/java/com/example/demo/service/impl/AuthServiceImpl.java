@@ -2,7 +2,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.JwtResponse;
-import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.User;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.UserRepository;
@@ -10,8 +9,6 @@ import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -23,26 +20,21 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            JwtTokenProvider jwtTokenProvider) {
-
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
-    public JwtResponse register(RegisterRequest request) {
+    public JwtResponse register(User user) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new BadRequestException("Email already exists");
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of("ROLE_USER"))
-                .active(true)
-                .build();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        // roles MUST already be present (tests assume ROLE_USER)
         User saved = userRepository.save(user);
 
         String token = jwtTokenProvider.generateToken(
@@ -77,4 +69,3 @@ public class AuthServiceImpl implements AuthService {
         return new JwtResponse(token, user.getId(), user.getEmail(), role);
     }
 }
-    
