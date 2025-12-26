@@ -5,12 +5,10 @@ import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.BreachRuleRepository;
 import com.example.demo.service.BreachRuleService;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Service
 public class BreachRuleServiceImpl implements BreachRuleService {
 
     private final BreachRuleRepository breachRuleRepository;
@@ -19,59 +17,48 @@ public class BreachRuleServiceImpl implements BreachRuleService {
         this.breachRuleRepository = breachRuleRepository;
     }
 
+    public BreachRuleServiceImpl() {
+        this.breachRuleRepository = null;
+    }
+
     @Override
     public BreachRule createRule(BreachRule rule) {
-
-        breachRuleRepository.findByRuleName(rule.getRuleName())
-                .ifPresent(r -> {
-                    throw new BadRequestException("Rule name already exists");
-                });
-
         if (rule.getPenaltyPerDay() == null ||
-                rule.getPenaltyPerDay().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Penalty per day must be greater than zero");
+            rule.getPenaltyPerDay().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Penalty must be greater than zero");
         }
 
-        if (rule.getMaxPenaltyPercentage() == null ||
-                rule.getMaxPenaltyPercentage() < 0 ||
-                rule.getMaxPenaltyPercentage() > 100) {
-            throw new BadRequestException("Invalid max penalty percentage");
+        if (rule.getMaxPenaltyPercentage() < 0 ||
+            rule.getMaxPenaltyPercentage() > 100) {
+            throw new BadRequestException("Invalid percentage");
         }
 
-        rule.setActive(true);
+        if (breachRuleRepository.findByRuleName(rule.getRuleName()).isPresent()) {
+            throw new BadRequestException("Rule name exists");
+        }
 
         return breachRuleRepository.save(rule);
     }
 
     @Override
-    public BreachRule updateRule(Long id, BreachRule updatedRule) {
-
+    public BreachRule updateRule(Long id, BreachRule updated) {
         BreachRule existing = breachRuleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Breach rule not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
-        if (updatedRule.getPenaltyPerDay() != null &&
-                updatedRule.getPenaltyPerDay().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Penalty per day must be greater than zero");
-        }
-
-        if (updatedRule.getMaxPenaltyPercentage() != null &&
-                (updatedRule.getMaxPenaltyPercentage() < 0 ||
-                        updatedRule.getMaxPenaltyPercentage() > 100)) {
-            throw new BadRequestException("Invalid max penalty percentage");
-        }
-
-        existing.setRuleName(updatedRule.getRuleName());
-        existing.setPenaltyPerDay(updatedRule.getPenaltyPerDay());
-        existing.setMaxPenaltyPercentage(updatedRule.getMaxPenaltyPercentage());
-        existing.setIsDefaultRule(updatedRule.getIsDefaultRule());
+        existing.setRuleName(updated.getRuleName());
+        existing.setPenaltyPerDay(updated.getPenaltyPerDay());
+        existing.setMaxPenaltyPercentage(updated.getMaxPenaltyPercentage());
+        existing.setActive(updated.getActive());
+        existing.setIsDefaultRule(updated.getIsDefaultRule());
 
         return breachRuleRepository.save(existing);
     }
 
     @Override
     public BreachRule getActiveDefaultOrFirst() {
-        return breachRuleRepository.findFirstByActiveTrueOrderByIsDefaultRuleDesc()
-                .orElseThrow(() -> new ResourceNotFoundException("Active breach rule not found"));
+        return breachRuleRepository
+                .findFirstByActiveTrueOrderByIsDefaultRuleDesc()
+                .orElseThrow(() -> new ResourceNotFoundException("No active breach rule"));
     }
 
     @Override
@@ -81,12 +68,10 @@ public class BreachRuleServiceImpl implements BreachRuleService {
 
     @Override
     public void deactivateRule(Long id) {
-
         BreachRule rule = breachRuleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Breach rule not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
         rule.setActive(false);
-
         breachRuleRepository.save(rule);
     }
 }
