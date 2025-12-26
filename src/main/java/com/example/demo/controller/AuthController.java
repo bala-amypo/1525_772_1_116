@@ -19,11 +19,13 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+        JwtResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+        JwtResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
