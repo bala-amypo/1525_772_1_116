@@ -1,18 +1,28 @@
-package com.example.demo.repository;
+package com.example.demo.entity;
 
-import com.example.demo.entity.DeliveryRecord;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
 
-@Repository
-public interface DeliveryRecordRepository extends JpaRepository<DeliveryRecord, Long> {
+@Entity
+@Table(name = "delivery_records")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DeliveryRecord {
 
-    List<DeliveryRecord> findByContractId(Long contractId);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    Optional<DeliveryRecord> findFirstByContractIdOrderByDeliveryDateDesc(Long contractId);
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
 
-    List<DeliveryRecord> findByContractIdOrderByDeliveryDateAsc(Long contractId);
+    @Column(nullable = false)
+    private LocalDate deliveryDate;
+
+    private String notes;
 }
