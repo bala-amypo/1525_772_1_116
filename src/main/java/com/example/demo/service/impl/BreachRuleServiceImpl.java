@@ -36,16 +36,16 @@ public class BreachRuleServiceImpl implements BreachRuleService {
     }
 
     @Override
-    public BreachRule updateRule(Long id, BreachRule updatedRule) {
+    public BreachRule updateRule(Long id, BreachRule updated) {
 
         BreachRule existing = breachRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
-        existing.setRuleName(updatedRule.getRuleName());
-        existing.setPenaltyPerDay(updatedRule.getPenaltyPerDay());
-        existing.setMaxPenaltyPercentage(updatedRule.getMaxPenaltyPercentage());
-        existing.setActive(updatedRule.getActive());
-        existing.setIsDefaultRule(updatedRule.getIsDefaultRule());
+        existing.setRuleName(updated.getRuleName());
+        existing.setPenaltyPerDay(updated.getPenaltyPerDay());
+        existing.setMaxPenaltyPercentage(updated.getMaxPenaltyPercentage());
+        existing.setActive(updated.getActive());
+        existing.setIsDefaultRule(updated.getIsDefaultRule());
 
         return breachRuleRepository.save(existing);
     }
