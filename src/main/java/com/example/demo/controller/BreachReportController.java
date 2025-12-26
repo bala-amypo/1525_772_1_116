@@ -41,6 +41,8 @@ public class BreachReportController {
 
     @GetMapping
     public ResponseEntity<List<BreachReport>> getAll() {
-        return ResponseEntity.ok(breachReportService.getAllReports());
+        return ResponseEntity.ok(
+                breachReportService.getAllReports()
+        );
     }
 }
