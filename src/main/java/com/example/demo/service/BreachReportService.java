@@ -10,7 +10,7 @@ public interface BreachReportService {
 
     BreachReport getReportById(Long id);
 
-    List<BreachReport> getReportsByContract(Long contractId);
+    List<BreachReport> getReportsForContract(Long contractId);
 
-    List<BreachReport> getAllReports();   // <-- Added missing method
+    List<BreachReport> getAllReports();
 }

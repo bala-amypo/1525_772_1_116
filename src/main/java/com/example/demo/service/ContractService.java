@@ -3,7 +3,6 @@ package com.example.demo.service;
 import com.example.demo.entity.Contract;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ContractService {
 
@@ -11,7 +10,7 @@ public interface ContractService {
 
     Contract updateContract(Long id, Contract contract);
 
-    Optional<Contract> getContractById(Long id);
+    Contract getContractById(Long id);
 
     List<Contract> getAllContracts();
 
