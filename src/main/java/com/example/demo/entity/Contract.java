@@ -9,21 +9,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(
-        name = "contracts",
-        uniqueConstraints = @UniqueConstraint(columnNames = "contractNumber")
-)
+@Table(name = "contracts")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true, nullable = false)
     private String contractNumber;
 
     @Column(nullable = false)
@@ -35,34 +32,39 @@ public class Contract {
     @Column(nullable = false)
     private LocalDate agreedDeliveryDate;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false)
     private BigDecimal baseContractValue;
 
     @Column(nullable = false)
-    private String status = "ACTIVE";
+    private String status;
 
-    @Column(updatable = false)
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
+    /* ---------------- Relationships ---------------- */
+
+    @OneToMany(mappedBy = "contract", fetch = FetchType.LAZY)
     private List<DeliveryRecord> deliveryRecords;
 
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "contract", fetch = FetchType.LAZY)
     private List<PenaltyCalculation> penaltyCalculations;
 
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "contract", fetch = FetchType.LAZY)
     private List<BreachReport> breachReports;
 
+    /* ---------------- Lifecycle ---------------- */
+
     @PrePersist
-    protected void onCreate() {
+    public void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
+        this.updatedAt = LocalDateTime.now();
+        if (this.status == null) {
+            this.status = "ACTIVE";
+        }
     }
 
     @PreUpdate
-    protected void onUpdate() {
+    public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 }

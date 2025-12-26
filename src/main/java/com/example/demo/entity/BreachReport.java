@@ -1,45 +1,13 @@
-package com.example.demo.entity;
+package com.example.demo.repository;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.example.demo.entity.BreachReport;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-@Table(name = "breach_reports")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class BreachReport {
+@Repository
+public interface BreachReportRepository extends JpaRepository<BreachReport, Long> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    /* ===================== RELATIONSHIPS ===================== */
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "contract_id")
-    private Contract contract;
-
-    /* ===================== FIELDS ===================== */
-
-    @Column(nullable = false)
-    private Integer daysDelayed;
-
-    @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal penaltyAmount;
-
-    @Column(nullable = false)
-    private String reportStatus = "GENERATED";
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime generatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.generatedAt = LocalDateTime.now();
-    }
+    List<BreachReport> findByContractId(Long contractId);
 }

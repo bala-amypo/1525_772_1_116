@@ -1,43 +1,15 @@
-package com.example.demo.entity;
+package com.example.demo.repository;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.example.demo.entity.BreachRule;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.Optional;
 
-@Entity
-@Table(
-        name = "breach_rules",
-        uniqueConstraints = @UniqueConstraint(columnNames = "ruleName")
-)
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class BreachRule {
+@Repository
+public interface BreachRuleRepository extends JpaRepository<BreachRule, Long> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Optional<BreachRule> findByRuleName(String ruleName);
 
-    @Column(nullable = false, unique = true)
-    private String ruleName;
-
-    @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal penaltyPerDay;
-
-    @Column(nullable = false)
-    private Double maxPenaltyPercentage;
-
-    @Column(nullable = false)
-    private Boolean active = true;
-
-    @Column(nullable = false)
-    private Boolean isDefaultRule = false;
-
-    /* ===================== RELATIONSHIPS ===================== */
-
-    @OneToMany(mappedBy = "breachRule")
-    private List<PenaltyCalculation> penaltyCalculations;
+    Optional<BreachRule> findFirstByActiveTrueOrderByIsDefaultRuleDesc();
 }

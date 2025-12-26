@@ -1,39 +1,15 @@
-package com.example.demo.entity;
+package com.example.demo.repository;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.example.demo.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.Set;
+import java.util.Optional;
 
-@Entity
-@Table(
-        name = "users",
-        uniqueConstraints = @UniqueConstraint(columnNames = "email")
-)
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class User {
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Optional<User> findByEmail(String email);
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
-    @Column(name = "role")
-    private Set<String> roles;
-
-    @Column(nullable = false)
-    private Boolean active = true;
+    boolean existsByEmail(String email);
 }
