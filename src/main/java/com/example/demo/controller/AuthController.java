@@ -1,12 +1,14 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.JwtResponse;
 import com.example.demo.entity.User;
 import com.example.demo.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -16,13 +18,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user) {
+    public ResponseEntity<JwtResponse> register(@RequestBody User user) {
         return ResponseEntity.ok(authService.register(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email,
-                                        @RequestParam String password) {
-        return ResponseEntity.ok(authService.login(email, password));
+    public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }
