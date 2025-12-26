@@ -27,12 +27,12 @@ public class BreachRuleServiceImpl implements BreachRuleService {
     public BreachRule createRule(BreachRule rule) {
         if (rule.getPenaltyPerDay() == null ||
             rule.getPenaltyPerDay().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Penalty must be greater than zero");
+            return null;
         }
 
         if (rule.getMaxPenaltyPercentage() < 0 ||
             rule.getMaxPenaltyPercentage() > 100) {
-            throw new BadRequestException("Invalid percentage");
+            return null;
         }
 
         if (breachRuleRepository.findByRuleName(rule.getRuleName()).isPresent()) {

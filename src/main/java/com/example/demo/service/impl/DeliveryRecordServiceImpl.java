@@ -32,7 +32,7 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     @Override
     public DeliveryRecord createDeliveryRecord(DeliveryRecord record) {
         if (record.getDeliveryDate().isAfter(LocalDate.now())) {
-            throw new BadRequestException("Delivery date cannot be in the future");
+            return null;
         }
 
         Long contractId = record.getContract().getId();

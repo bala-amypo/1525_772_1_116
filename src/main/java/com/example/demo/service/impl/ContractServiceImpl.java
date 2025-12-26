@@ -35,7 +35,7 @@ public class ContractServiceImpl implements ContractService {
     public Contract createContract(Contract contract) {
         if (contract.getBaseContractValue() == null ||
             contract.getBaseContractValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Base contract value must be greater than zero");
+            return null;
         }
 
         if (contractRepository != null &&
