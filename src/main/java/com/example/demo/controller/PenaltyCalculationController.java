@@ -25,17 +25,16 @@ public class PenaltyCalculationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PenaltyCalculation> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                penaltyCalculationService.getCalculationById(id)
-        );
-    }
+public ResponseEntity<PenaltyCalculation> getById(@PathVariable Long id) {
+    return ResponseEntity.ok(penaltyCalculationService.getCalculationById(id));
+}
 
-    @GetMapping("/contract/{contractId}")
-    public ResponseEntity<List<PenaltyCalculation>> getByContract(
-            @PathVariable Long contractId) {
-        return ResponseEntity.ok(
-                penaltyCalculationService.getCalculationsForContract(contractId)
-        );
-    }
+@GetMapping("/contract/{contractId}")
+public ResponseEntity<List<PenaltyCalculation>> getByContract(
+        @PathVariable Long contractId) {
+    return ResponseEntity.ok(
+            penaltyCalculationService.getCalculationsForContract(contractId)
+    );
+}
+
 }

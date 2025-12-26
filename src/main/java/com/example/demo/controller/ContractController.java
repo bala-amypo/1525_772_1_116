@@ -34,6 +34,7 @@ public class ContractController {
         return ResponseEntity.ok(contractService.getContractById(id));
     }
 
+
     @GetMapping
     public ResponseEntity<List<Contract>> getAll() {
         return ResponseEntity.ok(contractService.getAllContracts());
