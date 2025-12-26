@@ -1,54 +1,38 @@
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtTokenProvider {
 
-    private String jwtSecret;
-    private long jwtExpirationMs;
+    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
-    public String generateToken(Long userId, String email, Set<String> roles) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("email", email);
-        claims.put("roles", String.join(",", roles));
+    public String generateToken(Long userId, String email, String rolesCsv) {
 
         return Jwts.builder()
-                .setClaims(claims)
                 .setSubject(email)
+                .addClaims(Map.of(
+                        "userId", userId,
+                        "email", email,
+                        "roles", rolesCsv
+                ))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .signWith(key)
                 .compact();
     }
 
     public Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public String getUsername(String token) {
-        return getClaims(token).getSubject();
-    }
-
-    public Set<String> getRoles(String token) {
-        String roles = (String) getClaims(token).get("roles");
-        return Arrays.stream(roles.split(",")).collect(Collectors.toSet());
-    }
-
-    public boolean validateToken(String token) {
-        try {
-            getClaims(token);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
     }
 }
