@@ -1,13 +1,16 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.AuthRequest;
-import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.JwtResponse;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.User;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.AuthService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,28 +21,34 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder,
-                           JwtTokenProvider jwtTokenProvider) {
+    public AuthServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtTokenProvider jwtTokenProvider
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
-    public AuthResponse register(RegisterRequest request) {
+    public JwtResponse register(RegisterRequest request) {
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("email already exists");
+            throw new BadRequestException("Email already registered");
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of("ROLE_USER"))
-                .active(true)
-                .build();
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // default role
+        user.setRoles(Set.of("ROLE_USER"));
 
         User saved = userRepository.save(user);
 
@@ -49,17 +58,26 @@ public class AuthServiceImpl implements AuthService {
                 saved.getRoles()
         );
 
-        return new AuthResponse(token, saved.getId(), saved.getEmail(), "ROLE_USER");
+        return new JwtResponse(
+                token,
+                saved.getId(),
+                saved.getEmail(),
+                "ROLE_USER"
+        );
     }
 
     @Override
-    public AuthResponse login(AuthRequest request) {
+    public JwtResponse login(AuthRequest request) {
+
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException("Invalid credentials"));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadRequestException("Invalid credentials");
-        }
 
         String token = jwtTokenProvider.generateToken(
                 user.getId(),
@@ -67,7 +85,14 @@ public class AuthServiceImpl implements AuthService {
                 user.getRoles()
         );
 
-        return new AuthResponse(token, user.getId(), user.getEmail(),
-                user.getRoles().iterator().next());
+        return new JwtResponse(
+                token,
+                user.getId(),
+                user.getEmail(),
+                user.getRoles()
+                        .stream()
+                        .findFirst()
+                        .orElse("ROLE_USER")
+        );
     }
 }
