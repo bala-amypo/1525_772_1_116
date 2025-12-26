@@ -3,12 +3,14 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.JwtResponse;
 import com.example.demo.entity.User;
-import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -29,33 +31,41 @@ public class AuthServiceImpl implements AuthService {
     public JwtResponse register(User user) {
 
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new BadRequestException("Email already exists");
+            throw new RuntimeException("Email already registered");
         }
 
+        // Normalize roles → ALWAYS ROLE_*
+        Set<String> roles = user.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            roles = Set.of("ROLE_USER");
+        } else {
+            roles = roles.stream()
+                    .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r.toUpperCase())
+                    .collect(Collectors.toSet());
+        }
+
+        user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // roles MUST already be present (tests assume ROLE_USER)
-        User saved = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         String token = jwtTokenProvider.generateToken(
-                saved.getId(),
-                saved.getEmail(),
-                saved.getRoles()
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getRoles()
         );
 
-        String role = saved.getRoles().iterator().next();
-
-        return new JwtResponse(token, saved.getId(), saved.getEmail(), role);
+        return new JwtResponse(token, "User registered successfully");
     }
 
     @Override
     public JwtResponse login(AuthRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadRequestException("Invalid credentials"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadRequestException("Invalid credentials");
+            throw new RuntimeException("Invalid credentials");
         }
 
         String token = jwtTokenProvider.generateToken(
@@ -64,8 +74,6 @@ public class AuthServiceImpl implements AuthService {
                 user.getRoles()
         );
 
-        String role = user.getRoles().iterator().next();
-
-        return new JwtResponse(token, user.getId(), user.getEmail(), role);
+        return new JwtResponse(token, "Login successful");
     }
 }
