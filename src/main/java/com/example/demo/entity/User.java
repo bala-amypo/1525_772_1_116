@@ -1,15 +1,48 @@
-package com.example.demo.repository;
+package com.example.demo.entity;
 
-import com.example.demo.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.Optional;
+import java.util.Set;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+@Entity
+@Table(name = "users")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
 
-    Optional<User> findByEmail(String email);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    boolean existsByEmail(String email);
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    /* 
+     * IMPORTANT:
+     * Tests expect Set<String> roles
+     * NOT enum
+     * NOT single role field
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "role")
+    private Set<String> roles;
+
+    private Boolean active;
+
+    @PrePersist
+    public void onCreate() {
+        if (active == null) {
+            active = true;
+        }
+    }
 }

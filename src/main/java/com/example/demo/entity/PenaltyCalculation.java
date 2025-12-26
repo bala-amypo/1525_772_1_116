@@ -1,16 +1,45 @@
-package com.example.demo.repository;
+package com.example.demo.entity;
 
-import com.example.demo.entity.PenaltyCalculation;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-@Repository
-public interface PenaltyCalculationRepository extends JpaRepository<PenaltyCalculation, Long> {
+@Entity
+@Table(name = "penalty_calculations")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PenaltyCalculation {
 
-    List<PenaltyCalculation> findByContractId(Long contractId);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    Optional<PenaltyCalculation> findTopByContractIdOrderByCalculatedAtDesc(Long contractId);
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_record_id")
+    private DeliveryRecord deliveryRecord;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "breach_rule_id", nullable = false)
+    private BreachRule breachRule;
+
+    @Column(nullable = false)
+    private Integer daysDelayed;
+
+    @Column(nullable = false)
+    private BigDecimal calculatedPenalty;
+
+    private LocalDateTime calculatedAt;
+
+    @PrePersist
+    public void onCreate() {
+        this.calculatedAt = LocalDateTime.now();
+    }
 }
