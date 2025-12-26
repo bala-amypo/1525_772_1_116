@@ -1,16 +1,25 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.BreachReport;
+import com.example.demo.repository.BreachReportRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface BreachReportService {
+@Service
+@NoArgsConstructor
+@AllArgsConstructor
+public class BreachReportService {
 
-    BreachReport generateReport(Long contractId);
+    private BreachReportRepository breachReportRepository;
 
-    BreachReport getReportById(Long id);
+    public BreachReport saveReport(BreachReport report) {
+        return breachReportRepository.save(report);
+    }
 
-    List<BreachReport> getReportsForContract(Long contractId);
-
-    List<BreachReport> getAllReports();
+    public List<BreachReport> getAllReports() {
+        return breachReportRepository.findAll();
+    }
 }

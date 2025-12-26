@@ -1,18 +1,30 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Contract;
+import com.example.demo.repository.ContractRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ContractService {
+@Service
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContractService {
 
-    Contract createContract(Contract contract);
+    private ContractRepository contractRepository;
 
-    Contract updateContract(Long id, Contract contract);
+    public Contract saveContract(Contract contract) {
+        return contractRepository.save(contract);
+    }
 
-    Contract getContractById(Long id);
+    public List<Contract> getAllContracts() {
+        return contractRepository.findAll();
+    }
 
-    List<Contract> getAllContracts();
-
-    void updateContractStatus(Long id);
+    public Optional<Contract> getContractById(Long id) {
+        return contractRepository.findById(id);
+    }
 }

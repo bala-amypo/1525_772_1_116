@@ -1,16 +1,25 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.DeliveryRecord;
+import com.example.demo.repository.DeliveryRecordRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface DeliveryRecordService {
+@Service
+@NoArgsConstructor
+@AllArgsConstructor
+public class DeliveryRecordService {
 
-    DeliveryRecord createDeliveryRecord(DeliveryRecord record);
+    private DeliveryRecordRepository deliveryRecordRepository;
 
-    DeliveryRecord getRecordById(Long id);
+    public DeliveryRecord saveDelivery(DeliveryRecord record) {
+        return deliveryRecordRepository.save(record);
+    }
 
-    List<DeliveryRecord> getDeliveryRecordsForContract(Long contractId);
-
-    DeliveryRecord getLatestDeliveryRecord(Long contractId);
+    public List<DeliveryRecord> getAllDeliveries() {
+        return deliveryRecordRepository.findAll();
+    }
 }
