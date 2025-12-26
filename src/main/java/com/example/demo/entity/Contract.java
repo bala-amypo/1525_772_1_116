@@ -1,12 +1,22 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "contracts", uniqueConstraints = @UniqueConstraint(columnNames = "contractNumber"))
+@Table(
+    name = "contracts",
+    uniqueConstraints = @UniqueConstraint(columnNames = "contractNumber")
+)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Contract {
 
     @Id
@@ -25,7 +35,7 @@ public class Contract {
     @Column(nullable = false)
     private LocalDate agreedDeliveryDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal baseContractValue;
 
     @Column(nullable = false)
@@ -36,86 +46,23 @@ public class Contract {
 
     private LocalDateTime updatedAt;
 
-    public Contract() {}
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DeliveryRecord> deliveryRecords;
 
-    public Contract(String contractNumber, String title, String counterpartyName, LocalDate agreedDeliveryDate, BigDecimal baseContractValue) {
-        this.contractNumber = contractNumber;
-        this.title = title;
-        this.counterpartyName = counterpartyName;
-        this.agreedDeliveryDate = agreedDeliveryDate;
-        this.baseContractValue = baseContractValue;
+    @OneToMany(mappedBy = "contract")
+    private List<PenaltyCalculation> penaltyCalculations;
+
+    @OneToMany(mappedBy = "contract")
+    private List<BreachReport> breachReports;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
     }
 
-    public Long getId() {
-        return id;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
-
-    public String getContractNumber() {
-        return contractNumber;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getCounterpartyName() {
-        return counterpartyName;
-    }
-
-    public LocalDate getAgreedDeliveryDate() {
-        return agreedDeliveryDate;
-    }
-
-    public BigDecimal getBaseContractValue() {
-        return baseContractValue;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setContractNumber(String contractNumber) {
-        this.contractNumber = contractNumber;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setCounterpartyName(String counterpartyName) {
-        this.counterpartyName = counterpartyName;
-    }
-
-    public void setAgreedDeliveryDate(LocalDate agreedDeliveryDate) {
-        this.agreedDeliveryDate = agreedDeliveryDate;
-    }
-
-    public void setBaseContractValue(BigDecimal baseContractValue) {
-        this.baseContractValue = baseContractValue;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
 }

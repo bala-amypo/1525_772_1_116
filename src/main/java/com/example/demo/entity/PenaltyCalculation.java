@@ -1,11 +1,17 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "penalty_calculations")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PenaltyCalculation {
 
     @Id
@@ -27,86 +33,14 @@ public class PenaltyCalculation {
     @Column(nullable = false)
     private Integer daysDelayed;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal calculatedPenalty;
 
     @Column(updatable = false)
     private LocalDateTime calculatedAt;
 
-    public PenaltyCalculation() {}
-
-    public PenaltyCalculation(Contract contract,
-                              DeliveryRecord deliveryRecord,
-                              BreachRule breachRule,
-                              Integer daysDelayed,
-                              BigDecimal calculatedPenalty) {
-        this.contract = contract;
-        this.deliveryRecord = deliveryRecord;
-        this.breachRule = breachRule;
-        this.daysDelayed = daysDelayed;
-        this.calculatedPenalty = calculatedPenalty;
-    }
-
     @PrePersist
     protected void onCreate() {
-        this.calculatedAt = LocalDateTime.now();
+        calculatedAt = LocalDateTime.now();
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Contract getContract() {
-        return contract;
-    }
-
-    public DeliveryRecord getDeliveryRecord() {
-        return deliveryRecord;
-    }
-
-    public BreachRule getBreachRule() {
-        return breachRule;
-    }
-
-    public Integer getDaysDelayed() {
-        return daysDelayed;
-    }
-
-    public BigDecimal getCalculatedPenalty() {
-        return calculatedPenalty;
-    }
-
-    public LocalDateTime getCalculatedAt() {
-        return calculatedAt;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setContract(Contract contract) {
-        this.contract = contract;
-    }
-
-    public void setDeliveryRecord(DeliveryRecord deliveryRecord) {
-        this.deliveryRecord = deliveryRecord;
-    }
-
-    public void setBreachRule(BreachRule breachRule) {
-        this.breachRule = breachRule;
-    }
-
-    public void setDaysDelayed(Integer daysDelayed) {
-        this.daysDelayed = daysDelayed;
-    }
-
-    public void setCalculatedPenalty(BigDecimal calculatedPenalty) {
-        this.calculatedPenalty = calculatedPenalty;
-    }
-
-    public void setCalculatedAt(LocalDateTime calculatedAt) {
-        this.calculatedAt = calculatedAt;
-    }
-
-    
 }
