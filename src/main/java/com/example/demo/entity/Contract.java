@@ -10,8 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(
-    name = "contracts",
-    uniqueConstraints = @UniqueConstraint(columnNames = "contractNumber")
+        name = "contracts",
+        uniqueConstraints = @UniqueConstraint(columnNames = "contractNumber")
 )
 @Data
 @NoArgsConstructor
@@ -46,23 +46,23 @@ public class Contract {
 
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
     private List<DeliveryRecord> deliveryRecords;
 
-    @OneToMany(mappedBy = "contract")
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
     private List<PenaltyCalculation> penaltyCalculations;
 
-    @OneToMany(mappedBy = "contract")
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
     private List<BreachReport> breachReports;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = createdAt;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }

@@ -18,7 +18,7 @@ public class DeliveryRecord {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "contract_id", nullable = false)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @Column(nullable = false)

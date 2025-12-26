@@ -8,8 +8,8 @@ import java.util.List;
 
 @Entity
 @Table(
-    name = "breach_rules",
-    uniqueConstraints = @UniqueConstraint(columnNames = "ruleName")
+        name = "breach_rules",
+        uniqueConstraints = @UniqueConstraint(columnNames = "ruleName")
 )
 @Data
 @NoArgsConstructor
@@ -24,7 +24,7 @@ public class BreachRule {
     @Column(nullable = false, unique = true)
     private String ruleName;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal penaltyPerDay;
 
     @Column(nullable = false)
@@ -35,6 +35,8 @@ public class BreachRule {
 
     @Column(nullable = false)
     private Boolean isDefaultRule = false;
+
+    /* ===================== RELATIONSHIPS ===================== */
 
     @OneToMany(mappedBy = "breachRule")
     private List<PenaltyCalculation> penaltyCalculations;

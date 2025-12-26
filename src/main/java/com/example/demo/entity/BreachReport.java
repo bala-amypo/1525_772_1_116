@@ -18,9 +18,13 @@ public class BreachReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /* ===================== RELATIONSHIPS ===================== */
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "contract_id", nullable = false)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
+
+    /* ===================== FIELDS ===================== */
 
     @Column(nullable = false)
     private Integer daysDelayed;
@@ -31,11 +35,11 @@ public class BreachReport {
     @Column(nullable = false)
     private String reportStatus = "GENERATED";
 
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime generatedAt;
 
     @PrePersist
     protected void onCreate() {
-        generatedAt = LocalDateTime.now();
+        this.generatedAt = LocalDateTime.now();
     }
 }

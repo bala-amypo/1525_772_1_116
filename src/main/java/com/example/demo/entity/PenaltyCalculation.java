@@ -18,8 +18,10 @@ public class PenaltyCalculation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /* ===================== RELATIONSHIPS ===================== */
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "contract_id", nullable = false)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @ManyToOne
@@ -27,8 +29,10 @@ public class PenaltyCalculation {
     private DeliveryRecord deliveryRecord;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "breach_rule_id", nullable = false)
+    @JoinColumn(name = "breach_rule_id")
     private BreachRule breachRule;
+
+    /* ===================== FIELDS ===================== */
 
     @Column(nullable = false)
     private Integer daysDelayed;
@@ -36,11 +40,11 @@ public class PenaltyCalculation {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal calculatedPenalty;
 
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime calculatedAt;
 
     @PrePersist
     protected void onCreate() {
-        calculatedAt = LocalDateTime.now();
+        this.calculatedAt = LocalDateTime.now();
     }
 }
