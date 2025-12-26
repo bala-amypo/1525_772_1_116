@@ -1,54 +1,49 @@
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
 
-    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private String jwtSecret = "default-secret";
+    private long jwtExpirationMs = 86400000;
 
-    public String generateToken(Long userId, String email, String rolesCsv) {
-
+    public String generateToken(Long userId, String email, Set<String> roles) {
         return Jwts.builder()
                 .setSubject(email)
-                .addClaims(Map.of(
-                        "userId", userId,
-                        "email", email,
-                        "roles", rolesCsv
-                ))
+                .claim("userId", userId)
+                .claim("email", email)
+                .claim("roles", String.join(",", roles))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+    public Claims getClaims(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
     }
 
     public String getUsername(String token) {
         return getClaims(token).getSubject();
     }
 
-    public Claims getClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public Set<String> getRole(String token) {
+        String roles = (String) getClaims(token).get("roles");
+        return Set.of(roles.split(","));
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }
