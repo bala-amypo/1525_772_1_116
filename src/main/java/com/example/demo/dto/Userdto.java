@@ -26,7 +26,7 @@ public class UserDto {
         this.id = id;
     }
 
-    // Getter and Setter for username
+    
     public String getUsername() {
         return username;
     }
@@ -35,7 +35,7 @@ public class UserDto {
         this.username = username;
     }
 
-    // Getter and Setter for email
+    
     public String getEmail() {
         return email;
     }
@@ -44,7 +44,7 @@ public class UserDto {
         this.email = email;
     }
 
-    // Getter and Setter for role
+    
     public String getRole() {
         return role;
     }
