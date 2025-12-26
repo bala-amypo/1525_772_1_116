@@ -29,6 +29,17 @@ public class BreachRuleController {
         return ResponseEntity.ok(breachRuleService.updateRule(id, rule));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BreachRule> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                breachRuleService.getAllRules()
+                        .stream()
+                        .filter(r -> r.getId().equals(id))
+                        .findFirst()
+                        .orElseThrow()
+        );
+    }
+
     @GetMapping
     public ResponseEntity<List<BreachRule>> getAll() {
         return ResponseEntity.ok(breachRuleService.getAllRules());

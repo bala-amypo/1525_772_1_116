@@ -19,12 +19,16 @@ public class PenaltyCalculationController {
 
     @PostMapping("/contract/{contractId}")
     public ResponseEntity<PenaltyCalculation> calculate(@PathVariable Long contractId) {
-        return ResponseEntity.ok(penaltyCalculationService.calculatePenalty(contractId));
+        return ResponseEntity.ok(
+                penaltyCalculationService.calculatePenalty(contractId)
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PenaltyCalculation> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(penaltyCalculationService.getCalculationById(id));
+        return ResponseEntity.ok(
+                penaltyCalculationService.getCalculationById(id)
+        );
     }
 
     @GetMapping("/contract/{contractId}")

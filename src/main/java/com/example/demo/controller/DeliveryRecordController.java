@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.DeliveryRecord;
 import com.example.demo.service.DeliveryRecordService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +19,7 @@ public class DeliveryRecordController {
 
     @PostMapping
     public ResponseEntity<DeliveryRecord> create(@RequestBody DeliveryRecord record) {
-        return new ResponseEntity<>(
-                deliveryRecordService.createDeliveryRecord(record),
-                HttpStatus.CREATED
-        );
+        return ResponseEntity.ok(deliveryRecordService.createDeliveryRecord(record));
     }
 
     @GetMapping("/{id}")

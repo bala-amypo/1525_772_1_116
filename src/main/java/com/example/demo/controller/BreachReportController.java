@@ -19,12 +19,16 @@ public class BreachReportController {
 
     @PostMapping("/contract/{contractId}")
     public ResponseEntity<BreachReport> generate(@PathVariable Long contractId) {
-        return ResponseEntity.ok(breachReportService.generateReport(contractId));
+        return ResponseEntity.ok(
+                breachReportService.generateReport(contractId)
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<BreachReport> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(breachReportService.getReportById(id));
+        return ResponseEntity.ok(
+                breachReportService.getReportById(id)
+        );
     }
 
     @GetMapping("/contract/{contractId}")
