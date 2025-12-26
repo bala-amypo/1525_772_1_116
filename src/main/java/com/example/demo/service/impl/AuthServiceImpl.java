@@ -1,6 +1,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtTokenProvider;
@@ -23,7 +24,6 @@ public class AuthServiceImpl implements AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    // ✅ MUST MATCH INTERFACE EXACTLY
     @Override
     public String login(AuthRequest request) {
 
@@ -43,22 +43,21 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-    // ✅ MUST MATCH INTERFACE EXACTLY
     @Override
-    public String register(AuthRequest request) {
+    public String register(RegisterRequest request) {
 
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRoles(request.getRoles());
+        user.setRoles(request.getRoles()); // ✅ roles exist ONLY here
 
-        User savedUser = userRepository.save(user);
+        User saved = userRepository.save(user);
 
-        String rolesCsv = String.join(",", savedUser.getRoles());
+        String rolesCsv = String.join(",", saved.getRoles());
 
         return jwtTokenProvider.generateToken(
-                savedUser.getId(),
-                savedUser.getEmail(),
+                saved.getId(),
+                saved.getEmail(),
                 rolesCsv
         );
     }
