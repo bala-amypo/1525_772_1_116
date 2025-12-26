@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email already registered");
         }
 
-        // Normalize roles → ALWAYS ROLE_*
+        // Normalize roles
         Set<String> roles = user.getRoles();
         if (roles == null || roles.isEmpty()) {
             roles = Set.of("ROLE_USER");
@@ -55,7 +55,12 @@ public class AuthServiceImpl implements AuthService {
                 savedUser.getRoles()
         );
 
-        return new JwtResponse(token, "User registered successfully");
+        return new JwtResponse(
+                token,
+                savedUser.getId(),
+                savedUser.getEmail(),
+                String.join(",", savedUser.getRoles())
+        );
     }
 
     @Override
@@ -74,6 +79,11 @@ public class AuthServiceImpl implements AuthService {
                 user.getRoles()
         );
 
-        return new JwtResponse(token, "Login successful");
+        return new JwtResponse(
+                token,
+                user.getId(),
+                user.getEmail(),
+                String.join(",", user.getRoles())
+        );
     }
 }
