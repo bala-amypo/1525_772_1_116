@@ -1,30 +1,16 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.BreachRule;
-import com.example.demo.repository.BreachRuleRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-@Service
-@NoArgsConstructor
-@AllArgsConstructor
-public class BreachRuleService {
+public interface BreachRuleService {
 
-    private BreachRuleRepository breachRuleRepository;
+    BreachRule createRule(BreachRule rule);
 
-    public BreachRule saveRule(BreachRule rule) {
-        return breachRuleRepository.save(rule);
-    }
+    BreachRule updateRule(Long id, BreachRule rule);
 
-    public List<BreachRule> getAllRules() {
-        return breachRuleRepository.findAll();
-    }
+    List<BreachRule> getAllRules();
 
-    public Optional<BreachRule> getRuleById(Long id) {
-        return breachRuleRepository.findById(id);
-    }
+    void deactivateRule(Long id);
 }
