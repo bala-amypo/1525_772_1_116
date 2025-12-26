@@ -64,5 +64,5 @@ public class PenaltyCalculationDto {
         this.calculatedAt = calculatedAt;
     }
 
-    // getters and setters
+    
 }

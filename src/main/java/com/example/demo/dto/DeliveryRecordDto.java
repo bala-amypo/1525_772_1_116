@@ -51,5 +51,5 @@ public class DeliveryRecordDto {
         this.notes = notes;
     }
 
-    // getters and setters
+    
 }

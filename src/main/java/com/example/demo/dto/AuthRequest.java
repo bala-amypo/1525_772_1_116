@@ -28,5 +28,5 @@ public class AuthRequestDto {
         this.password = password;
     }
 
-    // getters and setters
+   
 }

@@ -17,7 +17,7 @@ public class UserDto {
         this.role = role;
     }
 
-    // Getter and Setter for id
+    
     public Long getId() {
         return id;
     }

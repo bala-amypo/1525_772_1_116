@@ -17,7 +17,7 @@ public class AuthResponseDto {
         this.role = role;
     }
     
-    // getters and setters
+    
 
     public String getToken() {
         return token;

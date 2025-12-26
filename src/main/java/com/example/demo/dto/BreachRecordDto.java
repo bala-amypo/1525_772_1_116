@@ -75,5 +75,5 @@ public class BreachReportDto {
         this.generatedAt = generatedAt;
     }
 
-    // getters and setters
+   
 }
