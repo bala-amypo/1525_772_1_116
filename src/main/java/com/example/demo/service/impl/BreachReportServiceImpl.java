@@ -36,7 +36,6 @@ public class BreachReportServiceImpl implements BreachReportService {
                 .contract(contract)
                 .daysDelayed(calc.getDaysDelayed())
                 .penaltyAmount(calc.getCalculatedPenalty())
-                .reportStatus("GENERATED")
                 .build();
 
         return breachReportRepository.save(report);

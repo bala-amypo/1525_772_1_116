@@ -2,7 +2,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.entity.Contract;
 import com.example.demo.entity.DeliveryRecord;
-import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.ContractRepository;
 import com.example.demo.repository.DeliveryRecordRepository;
@@ -27,7 +26,7 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     @Override
     public DeliveryRecord createDeliveryRecord(DeliveryRecord record) {
         if (record.getDeliveryDate().isAfter(LocalDate.now())) {
-            throw new BadRequestException("Delivery date cannot be in the future");
+            throw new IllegalArgumentException("Delivery date cannot be in the future");
         }
 
         Contract contract = contractRepository.findById(record.getContract().getId())

@@ -48,24 +48,25 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
 
         int daysDelayed = (int) Math.max(0, days);
 
-        BigDecimal rawPenalty =
-                rule.getPenaltyPerDay().multiply(BigDecimal.valueOf(daysDelayed));
+        BigDecimal penalty = rule.getPenaltyPerDay()
+                .multiply(BigDecimal.valueOf(daysDelayed));
 
-        BigDecimal maxAllowed =
-                contract.getBaseContractValue()
-                        .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage() / 100));
+        BigDecimal maxAllowed = contract.getBaseContractValue()
+                .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage() / 100));
 
-        BigDecimal finalPenalty = rawPenalty.min(maxAllowed);
+        if (penalty.compareTo(maxAllowed) > 0) {
+            penalty = maxAllowed;
+        }
 
-        PenaltyCalculation calc = PenaltyCalculation.builder()
+        PenaltyCalculation calculation = PenaltyCalculation.builder()
                 .contract(contract)
                 .deliveryRecord(record)
                 .breachRule(rule)
                 .daysDelayed(daysDelayed)
-                .calculatedPenalty(finalPenalty)
+                .calculatedPenalty(penalty)
                 .build();
 
-        return penaltyCalculationRepository.save(calc);
+        return penaltyCalculationRepository.save(calculation);
     }
 
     @Override
