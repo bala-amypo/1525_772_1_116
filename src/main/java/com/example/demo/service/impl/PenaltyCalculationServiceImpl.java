@@ -4,11 +4,13 @@ import com.example.demo.entity.*;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.*;
 import com.example.demo.service.PenaltyCalculationService;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Service
 public class PenaltyCalculationServiceImpl implements PenaltyCalculationService {
 
     private final PenaltyCalculationRepository penaltyCalculationRepository;
