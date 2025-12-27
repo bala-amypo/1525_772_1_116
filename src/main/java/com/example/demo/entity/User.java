@@ -31,39 +31,72 @@ public class User {
     public User() {
     }
 
-    // -------- getters --------
+    // ---------- GETTERS & SETTERS ----------
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPassword() {
         return password;
+    }
+ 
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Set<String> getRoles() {
         return roles;
     }
-
-    // -------- setters --------
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
+ 
     public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    // ---------- BUILDER (REQUIRED FOR TESTS) ----------
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final User user = new User();
+
+        public Builder id(Long id) {
+            user.setId(id);
+            return this;
+        }
+
+        public Builder email(String email) {
+            user.setEmail(email);
+            return this;
+        }
+
+        public Builder password(String password) {
+            user.setPassword(password);
+            return this;
+        }
+
+        public Builder roles(Set<String> roles) {
+            user.setRoles(roles);
+            return this;
+        }
+
+        public User build() {
+            return user;
+        }
     }
 }
